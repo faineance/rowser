@@ -5,7 +5,7 @@ use gfx_glyph::*;
 use std::env;
 use std::error::Error;
 mod html;
-mod network;
+mod render;
 mod transform;
 mod view_state;
 
@@ -14,7 +14,7 @@ static WINDOW_TITLE: &str = "ROWSER";
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
     let raw_html = reqwest::get(&args[1])?.text()?;
-    let text = html::parse_html(raw_html);
+    let blocks = html::parse_html(raw_html);
     // println!("{:?",text );
     env_logger::init();
     let mut events_loop = glutin::EventsLoop::new();
@@ -44,7 +44,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut ctrl = false;
     let mut loop_helper = spin_sleep::LoopHelper::builder().build_with_target_rate(250.0);
     let mut view_state = view_state::ViewState::default();
-    view_state.text = text;
+
+    view_state.text = "".to_string();
+
     while running {
         loop_helper.loop_start();
 
@@ -121,8 +123,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         let (width, height) = (f32::from(width), f32::from(height));
         let scale = Scale::uniform(view_state.font_size * window.get_hidpi_factor() as f32);
 
-        // The section is all the info needed for the glyph brush to render a 'section' of text.
-        // Use `..Section::default()` to skip the bits you don't care about
         let section = gfx_glyph::Section {
             text: &view_state.text,
             scale,
