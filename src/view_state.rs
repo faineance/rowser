@@ -19,7 +19,7 @@ impl Default for ViewState {
             font_size: 18.0,
             zoom: 1.0,
             angle: 0.0,
-            text: include_str!("lipsum.txt").into(),
+            text: "".to_string(),
         }
     }
 }

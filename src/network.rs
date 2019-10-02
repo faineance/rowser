@@ -1,4 +1,4 @@
-// fn get_page(url: i32) -> String {
+// fn get_page(url: String) -> String {
 //     reqwest::get(url)?
 //     .text()?
 // }

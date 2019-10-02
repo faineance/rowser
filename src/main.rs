@@ -1,14 +1,21 @@
+#[macro_use]
+extern crate html5ever;
 use gfx::{format, Device};
+use gfx_glyph::*;
+use std::env;
 use std::error::Error;
+mod html;
+mod network;
 mod transform;
 mod view_state;
-mod network;
-mod html;
+
 static WINDOW_TITLE: &str = "ROWSER";
 
-
-
 fn main() -> Result<(), Box<dyn Error>> {
+    let args: Vec<String> = env::args().collect();
+    let raw_html = reqwest::get(&args[1])?.text()?;
+    let text = html::parse_html(raw_html);
+    // println!("{:?",text );
     env_logger::init();
     let mut events_loop = glutin::EventsLoop::new();
 
@@ -37,7 +44,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut ctrl = false;
     let mut loop_helper = spin_sleep::LoopHelper::builder().build_with_target_rate(250.0);
     let mut view_state = view_state::ViewState::default();
-
+    view_state.text = text;
     while running {
         loop_helper.loop_start();
 
@@ -120,7 +127,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             text: &view_state.text,
             scale,
             screen_position: (0.0, 0.0),
-            bounds: (width / 3.15, height),
+            bounds: (width, height),
             color: [0.9, 0.3, 0.3, 1.0],
             ..Section::default()
         };
@@ -134,42 +141,29 @@ fn main() -> Result<(), Box<dyn Error>> {
         // This step computes the glyph positions, this is cached to avoid unnecessary recalculation
         glyph_brush.queue(section);
 
-        use gfx_glyph::*;
-        glyph_brush.queue(Section {
-            text: &view_state.text,
-            scale,
-            screen_position: (width / 2.0, height / 2.0),
-            bounds: (width / 3.15, height),
-            color: [0.3, 0.9, 0.3, 1.0],
-            layout: Layout::default()
-                .h_align(HorizontalAlign::Center)
-                .v_align(VerticalAlign::Center),
-            ..Section::default()
-        });
+        // glyph_brush.queue(Section {
+        //     text: &view_state.text,
+        //     scale,
+        //     screen_position: (width / 2.0, height / 2.0),
+        //     bounds: (width / 3.15, height),
+        //     color: [0.3, 0.9, 0.3, 1.0],
+        //     layout: Layout::default()
+        //         .h_align(HorizontalAlign::Center)
+        //         .v_align(VerticalAlign::Center),
+        //     ..Section::default()
+        // });
 
-        glyph_brush.queue(Section {
-            text: &view_state.text,
-            scale,
-            screen_position: (width, height),
-            bounds: (width / 3.15, height),
-            color: [0.3, 0.3, 0.9, 1.0],
-            layout: Layout::default()
-                .h_align(HorizontalAlign::Right)
-                .v_align(VerticalAlign::Bottom),
-            ..Section::default()
-        });
-        glyph_brush.queue(Section {
-            text: "status_line",
-            scale,
-            screen_position: (width, height),
-            bounds: (width, height),
-            color: [1.0, 1.0, 1.0, 1.0],
-            layout: Layout::default()
-                .h_align(HorizontalAlign::Right)
-                .v_align(VerticalAlign::Bottom),
-            ..Section::default()
-        });
-
+        // glyph_brush.queue(Section {
+        //     text: &view_state.text,
+        //     scale,
+        //     screen_position: (width, height),
+        //     bounds: (width / 3.15, height),
+        //     color: [0.3, 0.3, 0.9, 1.0],
+        //     layout: Layout::default()
+        //         .h_align(HorizontalAlign::Right)
+        //         .v_align(VerticalAlign::Bottom),
+        //     ..Section::default()
+        // });
         // Finally once per frame you want to actually draw all the sections you've submitted
         // with `queue` calls.
         //
@@ -191,6 +185,5 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         loop_helper.loop_sleep();
     }
-    println!();
     Ok(())
 }
