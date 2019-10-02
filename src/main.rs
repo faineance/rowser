@@ -2,8 +2,11 @@ use gfx::{format, Device};
 use std::error::Error;
 mod transform;
 mod view_state;
-
+mod network;
+mod html;
 static WINDOW_TITLE: &str = "ROWSER";
+
+
 
 fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
@@ -60,6 +63,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                         VirtualKeyCode::LControl | VirtualKeyCode::RControl => ctrl = true,
                         _ => (),
                     },
+                    WindowEvent::MouseInput {
+                        state: ElementState::Pressed,
+                        ..
+                    } => {
+                        // view_state.click()
+                    }
                     WindowEvent::KeyboardInput {
                         input:
                             KeyboardInput {
@@ -149,11 +158,22 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .v_align(VerticalAlign::Bottom),
             ..Section::default()
         });
+        glyph_brush.queue(Section {
+            text: "status_line",
+            scale,
+            screen_position: (width, height),
+            bounds: (width, height),
+            color: [1.0, 1.0, 1.0, 1.0],
+            layout: Layout::default()
+                .h_align(HorizontalAlign::Right)
+                .v_align(VerticalAlign::Bottom),
+            ..Section::default()
+        });
 
         // Finally once per frame you want to actually draw all the sections you've submitted
         // with `queue` calls.
         //
-        // Note: Drawing in the case the text is unchanged from the previous frame (a common case)
+        // Drawing in the case the text is unchanged from the previous frame (a common case)
         // is essentially free as the vertices are reused & gpu cache updating interaction
         // can be skipped.
         glyph_brush

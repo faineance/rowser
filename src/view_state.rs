@@ -5,6 +5,7 @@ use std::{
 const MAX_FONT_SIZE: f32 = 2000.0;
 
 pub struct ViewState {
+    pub mouse_position: (f32, f32),
     pub font_size: f32,
     pub zoom: f32,
     pub angle: f32,
@@ -14,6 +15,7 @@ pub struct ViewState {
 impl Default for ViewState {
     fn default() -> Self {
         ViewState {
+            mouse_position: (0.0, 0.0),
             font_size: 18.0,
             zoom: 1.0,
             angle: 0.0,
@@ -67,4 +69,5 @@ impl ViewState {
             let _ = io::stdout().flush();
         }
     }
+    // pub fn click(&mut self, y: f32)
 }
