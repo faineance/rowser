@@ -15,7 +15,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
     let raw_html = reqwest::get(&args[1])?.text()?;
     let blocks = html::parse_html(raw_html);
-    // println!("{:?",text );
+
+    // println!("{:?}", blocks);
     env_logger::init();
     let mut events_loop = glutin::EventsLoop::new();
 
@@ -117,7 +118,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
         });
 
-        encoder.clear(&main_colour, [0.02, 0.02, 0.02, 1.0]);
+        encoder.clear(&main_colour, [1.0, 1.0, 1.0, 1.0]);
 
         let (width, height, ..) = main_colour.get_dimensions();
         let (width, height) = (f32::from(width), f32::from(height));
@@ -140,6 +141,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         // font and gpu cache
         // This step computes the glyph positions, this is cached to avoid unnecessary recalculation
         glyph_brush.queue(section);
+        glyph_brush.queue(render::render(&blocks, scale, (width, height)));
 
         // glyph_brush.queue(Section {
         //     text: &view_state.text,
