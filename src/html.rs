@@ -59,11 +59,13 @@ fn walk(handle: &Handle, state: &WalkState) -> (Vec<Block>, Vec<Span>) {
                     (false, false) => SpanClass::Regular,
                     _ => unimplemented!(),
                 };
+                let mut line = contents.borrow().to_string();
+                line.push_str("\n");
                 return (
                     vec![],
                     vec![Span::Text {
                         class: class,
-                        content: (contents.borrow().to_string()),
+                        content: line,
                     }],
                 );
             }
