@@ -77,7 +77,7 @@ fn walk(handle: &Handle, state: &WalkState) -> (Vec<Block>, Vec<Span>) {
             ..
         } => {
             assert!(name.ns == ns!(html));
-            print!("{}", name.local);
+            // print!("{}", name.local);
             match name.local {
                 local_name!("b") if !state.bold => walk(
                     node,
@@ -95,16 +95,16 @@ fn walk(handle: &Handle, state: &WalkState) -> (Vec<Block>, Vec<Span>) {
                 ),
                 local_name!("div") | local_name!("p") => {
                     return (new_block(node, state, BlockClass::Paragraph), vec![]);
-                },
+                }
                 local_name!("h1") => {
                     return (new_block(node, state, BlockClass::H1), vec![]);
-                },
+                }
                 local_name!("h2") => {
                     return (new_block(node, state, BlockClass::H2), vec![]);
-                },
+                }
                 local_name!("h3") => {
                     return (new_block(node, state, BlockClass::H3), vec![]);
-                },
+                }
                 _ => {
                     let mut blocks = (vec![], vec![]);
                     for child in node.children.borrow().iter() {
@@ -113,9 +113,8 @@ fn walk(handle: &Handle, state: &WalkState) -> (Vec<Block>, Vec<Span>) {
                         blocks.1.append(&mut new_spans);
                     }
                     blocks
-                }
-                // _ => (vec![], vec![]),
-                // _ => walk(node, state),
+                } // _ => (vec![], vec![]),
+                  // _ => walk(node, state),
             }
             // for attr in attrs.borrow().iter() {
             //     assert!(attr.name.ns == ns!());
