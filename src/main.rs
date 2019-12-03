@@ -111,6 +111,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                             view_state.zoom(y);
                         } else if shift {
                             view_state.scale(y);
+                        } else {
+                            let new_scroll = view_state.scroll_offset
+                                - (view_state.font_size * window.get_hidpi_factor() as f32 * y);
+                            view_state.scroll(new_scroll)
                         }
                     }
                     _ => {}

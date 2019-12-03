@@ -10,6 +10,7 @@ pub struct ViewState {
     pub zoom: f32,
     pub angle: f32,
     pub text: String,
+    pub scroll_offset: f32,
 }
 
 impl Default for ViewState {
@@ -20,6 +21,7 @@ impl Default for ViewState {
             zoom: 1.0,
             angle: 0.0,
             text: "".to_string(),
+            scroll_offset: 0.,
         }
     }
 }
@@ -68,6 +70,10 @@ impl ViewState {
             print!("font-size -> {:.1}", self.font_size);
             let _ = io::stdout().flush();
         }
+    }
+    pub fn scroll(&mut self, scroll: f32) {
+        
+        self.scroll_offset = scroll
     }
     // pub fn click(&mut self, y: f32)
 }

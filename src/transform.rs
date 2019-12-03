@@ -12,6 +12,9 @@ pub fn generate_transform(width: f32, height: f32, view_state: &ViewState) -> Ma
     // cheap zoom out
     let zoom = Matrix4::from_scale(view_state.zoom);
 
+    // cheap scroll
+    let scroll = Matrix4::from_translation(Vector3::new(0.0, view_state.scroll_offset, 0.0));
+
     // Combined transform
-    zoom * projection * rotation
+    zoom * projection * rotation * scroll
 }

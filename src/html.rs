@@ -37,6 +37,7 @@ pub enum SpanClass {
 pub struct WalkState {
     bold: bool,
     italic: bool,
+    link: bool,
 }
 
 impl Default for WalkState {
@@ -44,6 +45,7 @@ impl Default for WalkState {
         WalkState {
             bold: false,
             italic: false,
+            link: false,
         }
     }
 }
@@ -79,6 +81,24 @@ fn walk(handle: &Handle, state: &WalkState) -> (Vec<Block>, Vec<Span>) {
             assert!(name.ns == ns!(html));
             // print!("{}", name.local);
             match name.local {
+                local_name!("a") if !state.link => {
+                    if !state.link
+                        || !attrs.borrow().iter().any(|ref attribute| {
+                            attribute.name.ns == ns!()
+                                && attribute.name.local == local_name!("href")
+                        })
+                    {
+                        walk(
+                            node,
+                            &WalkState {
+                                link: true,
+                                ..*state
+                            },
+                        )
+                    } else {
+                        walk(node, state)
+                    }
+                }
                 local_name!("b") if !state.bold => walk(
                     node,
                     &WalkState {
