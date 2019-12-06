@@ -2,18 +2,18 @@
 extern crate html5ever;
 #[macro_use]
 extern crate gfx;
-extern crate font_loader as fonts;
+extern crate font_loader;
 use gfx::{format, Device};
 use gfx_glyph::*;
 use std::env;
 use std::error::Error;
+mod fonts;
 mod html;
 mod render;
 mod transform;
 mod view_state;
 
-
-use fonts::system_fonts;
+use font_loader::system_fonts;
 
 use gfx::traits::FactoryExt;
 static WINDOW_TITLE: &str = "ROWSER";
@@ -46,14 +46,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         )
         .unwrap();
     let window = window_ctx.window();
-    
-    let mut property = system_fonts::FontPropertyBuilder::new()
-        .family("Arial")
-        .build();
 
-    let font = system_fonts::get(&property).unwrap().0;
-
-    let mut glyph_brush = gfx_glyph::GlyphBrushBuilder::using_font_bytes(font)
+    let mut glyph_brush = gfx_glyph::GlyphBrushBuilder::using_fonts(fonts::load_fonts().to_vec())
         .initial_cache_size((1024, 1024))
         .build(factory.clone());
 
@@ -63,7 +57,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             include_bytes!("rect_150.glslf"),
         )
         .expect("Error compiling parsers");
-    let mut rect_rasterizer = gfx::state::Rasterizer::new_fill();
+    let rect_rasterizer = gfx::state::Rasterizer::new_fill();
     let rect_pso = factory
         .create_pipeline_state(
             &rect_shaders,

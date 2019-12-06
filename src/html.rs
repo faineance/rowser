@@ -78,7 +78,7 @@ fn walk(handle: &Handle, state: &WalkState) -> (Vec<Block>, Vec<Span>) {
             ref attrs,
             ..
         } => {
-            assert!(name.ns == ns!(html));
+            // assert!(name.ns == ns!(html));
             // print!("{}", name.local);
             match name.local {
                 local_name!("a") if !state.link => {

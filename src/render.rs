@@ -1,4 +1,4 @@
-use crate::html::{Block, BlockClass, Span};
+use crate::html::{Block, BlockClass, Span, SpanClass};
 use gfx_glyph::*;
 
 // pub fn render_span<'a>(span: Span) ->
@@ -21,12 +21,21 @@ pub fn render_block<'a>(scale: rusttype::Scale, block: &'a Block) -> Vec<Section
                     x: scale.x * _scale,
                     y: scale.y * _scale,
                 },
+                font_id: span_class_to_fontid(class),
                 color: [0.0, 0.0, 0.0, 1.0],
                 ..SectionText::default()
             }),
         }
     }
     return sections;
+}
+
+fn span_class_to_fontid(class: &SpanClass) -> FontId {
+    match class {
+        SpanClass::Regular => FontId(0),
+        SpanClass::Bold => FontId(1),
+        SpanClass::Italic => FontId(2),
+    }
 }
 
 pub fn render<'a>(
