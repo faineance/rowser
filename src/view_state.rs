@@ -71,9 +71,11 @@ impl ViewState {
             let _ = io::stdout().flush();
         }
     }
-    pub fn scroll(&mut self, scroll: f32) {
-        
-        self.scroll_offset = scroll
+    pub fn scroll(&mut self, y: f32) {
+        self.scroll_offset = (self.scroll_offset - y).max(0.).round();
+        print!("\r                            \r");
+        print!("scroll-offset-> {:.1}", self.scroll_offset);
+        let _ = io::stdout().flush();
     }
     // pub fn click(&mut self, y: f32)
 }

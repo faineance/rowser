@@ -18,3 +18,4 @@ spin_sleep = "0.3"
 reqwest = "0.9.20"
 html5ever = "*"
 tendril = "*"
+font-loader = { git = "https://github.com/MSleepyPanda/rust-font-loader/" }

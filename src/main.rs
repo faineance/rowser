@@ -1,5 +1,8 @@
 #[macro_use]
 extern crate html5ever;
+#[macro_use]
+extern crate gfx;
+extern crate font_loader as fonts;
 use gfx::{format, Device};
 use gfx_glyph::*;
 use std::env;
@@ -9,8 +12,19 @@ mod render;
 mod transform;
 mod view_state;
 
+
+use fonts::system_fonts;
+
+use gfx::traits::FactoryExt;
 static WINDOW_TITLE: &str = "ROWSER";
 
+gfx_defines! {
+    pipeline rectpipe {
+        rect :gfx::Global<[f32;4]> = "rect",
+        color :gfx::Global<[f32;4]> = "color",
+        out: gfx::BlendTarget<format::Srgba8> = ("target0", gfx::state::ColorMask::all(), gfx::preset::blend::ALPHA),
+    }
+}
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
     let raw_html = reqwest::get(&args[1])?.text()?;
@@ -32,11 +46,32 @@ fn main() -> Result<(), Box<dyn Error>> {
         )
         .unwrap();
     let window = window_ctx.window();
+    
+    let mut property = system_fonts::FontPropertyBuilder::new()
+        .family("Arial")
+        .build();
 
-    let font: &[u8] = include_bytes!("./OpenSans-Light.ttf");
+    let font = system_fonts::get(&property).unwrap().0;
+
     let mut glyph_brush = gfx_glyph::GlyphBrushBuilder::using_font_bytes(font)
         .initial_cache_size((1024, 1024))
         .build(factory.clone());
+
+    let rect_shaders = factory
+        .create_shader_set(
+            include_bytes!("rect_150.glslv"),
+            include_bytes!("rect_150.glslf"),
+        )
+        .expect("Error compiling parsers");
+    let mut rect_rasterizer = gfx::state::Rasterizer::new_fill();
+    let rect_pso = factory
+        .create_pipeline_state(
+            &rect_shaders,
+            gfx::Primitive::TriangleStrip,
+            rect_rasterizer,
+            rectpipe::new(),
+        )
+        .expect("rect_pso");
 
     let mut encoder: gfx::Encoder<_, _> = factory.create_command_buffer().into();
 
@@ -112,9 +147,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                         } else if shift {
                             view_state.scale(y);
                         } else {
-                            let new_scroll = view_state.scroll_offset
-                                - (view_state.font_size * window.get_hidpi_factor() as f32 * y);
-                            view_state.scroll(new_scroll)
+                            view_state.scroll(
+                                view_state.font_size * window.get_hidpi_factor() as f32 * y,
+                            );
                         }
                     }
                     _ => {}
@@ -136,6 +171,35 @@ fn main() -> Result<(), Box<dyn Error>> {
             color: [0.9, 0.3, 0.3, 1.0],
             ..Section::default()
         };
+        let slice = gfx::Slice {
+            start: 0,
+            end: 4,
+            buffer: gfx::IndexBuffer::Auto,
+            base_vertex: 0,
+            instances: None,
+        };
+        let r = ((0., 3.), (50., 34.), (543., 23.), (100., 34.));
+        // Convert from screen to opengl coords
+        let r = (
+            (
+                2.0 * ((r.0).0 / width - 0.5),
+                2.0 * (0.5 - (r.0).1 / height),
+            ),
+            (
+                2.0 * ((r.1).0 / width - 0.5),
+                2.0 * (0.5 - (r.1).1 / height),
+            ),
+        );
+
+        encoder.draw(
+            &slice,
+            &rect_pso,
+            &rectpipe::Data {
+                rect: [(r.0).0, (r.0).1, (r.1).0, (r.1).1],
+                color: [0., 1., 1., 1.],
+                out: main_colour.clone(),
+            },
+        );
 
         // bounds of a section can be fetched with `pixel_bounds`
         // let _bounds: Option<Rect<i32>> = glyph_brush.pixel_bounds(section);
@@ -145,6 +209,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         // font and gpu cache
         // This step computes the glyph positions, this is cached to avoid unnecessary recalculation
         glyph_brush.queue(section);
+
         glyph_brush.queue(render::render(&blocks, scale, (width, height)));
 
         // glyph_brush.queue(Section {
@@ -180,7 +245,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             .use_queue()
             .transform(transform::generate_transform(width, height, &view_state))
             .draw(&mut encoder, &main_colour)?;
-
         encoder.flush(&mut device);
         window_ctx.swap_buffers()?;
         device.cleanup();
