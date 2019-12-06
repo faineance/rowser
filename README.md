@@ -16,3 +16,7 @@ A best efforts web browser.
 * [ ] click through links
 * [ ] forward and backword navigation 
 * [ ] tabs?
+
+## Running
+
+`cargo run --release -- https://motherfuckingwebsite.com/`
