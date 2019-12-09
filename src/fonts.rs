@@ -7,7 +7,7 @@ fn load_font_bytes<'a>(property: system_fonts::FontProperty) -> Font<'a> {
 }
 pub fn load_fonts<'a>() -> [Font<'a>;4] {
     [
-        load_font_bytes(system_fonts::FontPropertyBuilder::new().build()),
+        load_font_bytes(system_fonts::FontPropertyBuilder::new().family("Arial").build()),
         load_font_bytes(system_fonts::FontPropertyBuilder::new().bold().build()),
         load_font_bytes(system_fonts::FontPropertyBuilder::new().italic().build()),
         load_font_bytes(system_fonts::FontPropertyBuilder::new().monospace().build()),

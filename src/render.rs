@@ -22,7 +22,7 @@ pub fn render_block<'a>(scale: rusttype::Scale, block: &'a Block) -> Vec<Section
                     y: scale.y * _scale,
                 },
                 font_id: span_class_to_fontid(class),
-                color: [0.0, 0.0, 0.0, 1.0],
+                color: span_class_to_colour(class),
                 ..SectionText::default()
             }),
         }
@@ -30,11 +30,17 @@ pub fn render_block<'a>(scale: rusttype::Scale, block: &'a Block) -> Vec<Section
     return sections;
 }
 
+fn span_class_to_colour(class: &SpanClass) -> [f32; 4] {
+    match class {
+        SpanClass::Link => [0.0, 0.0, 1.0, 1.0],
+        _ => [0.0, 0.0, 0.0, 1.0],
+    }
+}
 fn span_class_to_fontid(class: &SpanClass) -> FontId {
     match class {
-        SpanClass::Regular => FontId(0),
         SpanClass::Bold => FontId(1),
         SpanClass::Italic => FontId(2),
+        _ => FontId(0),
     }
 }
 

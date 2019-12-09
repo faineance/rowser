@@ -30,7 +30,7 @@ pub enum BlockClass {
 pub enum SpanClass {
     Bold,
     Italic,
-    // Link,
+    Link,
     Regular,
 }
 
@@ -55,11 +55,11 @@ fn walk(handle: &Handle, state: &WalkState) -> (Vec<Block>, Vec<Span>) {
     match node.data {
         NodeData::Text { ref contents } => {
             if !contents.borrow().trim().is_empty() {
-                let class = match (state.bold, state.italic) {
-                    (true, false) => SpanClass::Bold,
-                    (false, true) => SpanClass::Italic,
-                    (false, false) => SpanClass::Regular,
-                    _ => unimplemented!(),
+                let class = match (state.bold, state.italic, state.link) {
+                    (true, false, false) => SpanClass::Bold,
+                    (false, true, false) => SpanClass::Italic,
+                    (false, false, true) => SpanClass::Link,
+                    _ => SpanClass::Regular
                 };
                 let mut line = contents.borrow().to_string();
                 line.push_str("\n");
@@ -156,7 +156,7 @@ fn walk(handle: &Handle, state: &WalkState) -> (Vec<Block>, Vec<Span>) {
 pub fn new_block(node: &Handle, state: &WalkState, class: BlockClass) -> Vec<Block> {
     let mut res = (vec![], vec![]);
     for child in node.children.borrow().iter() {
-        let (mut new_blocks, mut new_spans) = walk(&*child, state);
+        let (mut new_blocks, mut new_spans) = walk(child, state);
         res.0.append(&mut new_blocks);
         res.1.append(&mut new_spans);
     }

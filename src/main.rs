@@ -204,7 +204,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         // This step computes the glyph positions, this is cached to avoid unnecessary recalculation
         glyph_brush.queue(section);
 
-        glyph_brush.queue(render::render(&blocks, scale, (width, height)));
+        glyph_brush.queue(render::render(&blocks, scale, (width, height + view_state.scroll_offset.abs())));
 
         // glyph_brush.queue(Section {
         //     text: &view_state.text,

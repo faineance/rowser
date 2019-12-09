@@ -9,6 +9,7 @@ A best efforts web browser.
 * [x] colour-blind friendly, by only displaying black on white text
 * [x] expensive scroll ( renders offscreen text )
 * [x] load system fonts
+* [x] render links as blue
 * [ ] proper paragraph spacing
 * [ ] html lists
 * [ ] link rendering
