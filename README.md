@@ -8,6 +8,7 @@ A best efforts web browser.
 * [x] live the minimalist lifestyle you've always wanted, by only using one tab
 * [x] colour-blind friendly, by only diplaying black on white text
 * [x] expensive scroll ( renders offscreen text )
+* [x] load system fonts
 * [ ] proper paragraph spacing
 * [ ] html lists
 * [ ] link rendering
